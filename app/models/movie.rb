@@ -1,19 +1,13 @@
 class Movie < ActiveRecord::Base
     #attr_accessor :title, :rating, :description, :release_date
     
-    @@firstVisit = true
-    def self.firstVisit
-      return @@firstVisit
-    end
-    def self.firstVisit=(value)
-      @@firstVisit = value
-    end
-    
-    
-   
-    
     def self.all_ratings
-       %w[G PG PG-13 R NC-17] 
+       result = Hash.new
+       self.select(:rating).uniq.each {
+         |movie|
+         result[movie.rating] = 1
+       }
+       return result
     end
     
     

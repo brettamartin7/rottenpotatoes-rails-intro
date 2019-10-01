@@ -13,18 +13,40 @@ class MoviesController < ApplicationController
   
   
   def index
-    @all_ratings = Movie.all_ratings
-    @chosen_ratings = params[:ratings] || {}
-    @movies = Movie.all
-
-    if params[:sort_by] == "title"
-      @movies = Movie.order(:title)
-    elsif params[:sort_by] == "release_date"
-      @movies = Movie.order(:release_date)
-    else
-      @movies = Movie.rating_sort(@movies, @chosen_ratings)
+    #Check if params has any key, if not and session has values set params to session hash
+    if(!params.has_key?(:sort_by) && !params.has_key?(:ratings))
+      if(session.has_key?(:sort_by) || session.has_key?(:ratings))
+        redirect_to movies_path(:sort_by => session[:sort_by], :ratings => session[:ratings])
+      end
     end
     
+    
+    @all_ratings = Movie.all_ratings.keys
+    @chosen_ratings = params[:ratings]
+     
+    #Check if ratings has not been refreshed
+    if (@chosen_ratings != nil)
+      ratings = @chosen_ratings.keys
+      session[:ratings] = @chosen_ratings
+    else
+      if(!params.has_key?(:commit) && !params.has_key?(:sort_by))
+        ratings = Movie.all_ratings.keys
+        session[:ratings] = Movie.all_ratings
+      else
+        ratings = session[:ratings].keys
+      end
+    end
+    
+    #check if we have a sort_by key, if so store it in session
+    if (params.has_key?(:sort_by))
+      session[:sort_by] = params[:sort_by]
+      sort = session[:sort_by]
+    else
+      sort = session[:sort_by]
+    end
+    
+    @movies = Movie.order(sort).with_ratings(ratings)
+    @final_ratings = ratings
     
   end
 
