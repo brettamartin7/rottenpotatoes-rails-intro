@@ -16,14 +16,12 @@ class MoviesController < ApplicationController
     @all_ratings = Movie.all_ratings
     @chosen_ratings = params[:ratings] || {}
     @movies = Movie.all
-    
+
     if params[:sort_by] == "title"
       @movies = Movie.order(:title)
     elsif params[:sort_by] == "release_date"
       @movies = Movie.order(:release_date)
     else
-      #@movies = Movie.all
-      #@movies = Movie.rating_sort(@movies, @chosen_ratings)
       @movies = Movie.rating_sort(@movies, @chosen_ratings)
     end
     
