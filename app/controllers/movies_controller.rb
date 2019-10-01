@@ -1,5 +1,6 @@
 class MoviesController < ApplicationController
 
+  
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
   end
@@ -9,15 +10,24 @@ class MoviesController < ApplicationController
     @movie = Movie.find(id) # look up movie by unique ID
     # will render app/views/movies/show.<extension> by default
   end
-
+  
+  
   def index
+    @all_ratings = Movie.all_ratings
+    @chosen_ratings = params[:ratings] || {}
+    @movies = Movie.all
+    
     if params[:sort_by] == "title"
       @movies = Movie.order(:title)
     elsif params[:sort_by] == "release_date"
       @movies = Movie.order(:release_date)
     else
-      @movies = Movie.all
+      #@movies = Movie.all
+      #@movies = Movie.rating_sort(@movies, @chosen_ratings)
+      @movies = Movie.rating_sort(@movies, @chosen_ratings)
     end
+    
+    
   end
 
   def new
@@ -47,10 +57,6 @@ class MoviesController < ApplicationController
     @movie.destroy
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
-  end
-  
-  def titleOrder
-    @movies = Movie.all.order(:title)
   end
 
 end
